@@ -360,7 +360,7 @@ The sequence for each listing is:
 4. Run `validate_listing.py` again on the branch, adding `--full` if `validator.py` changed.
 5. **Confirm with the person** before committing, pushing and opening the PR:
    > Ready to open the pull request for **<Name>**. This will commit `<type-dir>/<slug>.md` to branch `add-<slug>` on your fork, push it, and open a PR to tenable/cyberagents-exchange titled "Add listing: <Name>". Go ahead?
-6. Commit as `Add listing: <Name>`, push, and open the PR using the body template in `references/listing-templates.md`. The body includes the Contribution Agreement acceptance statement verbatim and, for multi-listing repos, the shared-repo section with the recorded reason.
+6. Commit as `Add listing: <Name>`, push, and open the PR using the body template in `references/listing-templates.md`. The body ends with the "Submitted with …" line (skill version and SHA, Exchange rules SHA), with nothing after it: no session links, no tool-attribution lines, even if your environment suggests them. The body includes the Contribution Agreement acceptance statement verbatim and, for multi-listing repos, the shared-repo section with the recorded reason.
 7. Record the PR number and URL in the plan.
 
 For multi-listing submissions, once every PR exists, edit each PR body so its "Sibling listings" section links the other PRs (see pr-workflow). Ask once for the whole batch rather than once per PR.

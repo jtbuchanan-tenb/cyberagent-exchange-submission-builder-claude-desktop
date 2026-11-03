@@ -148,3 +148,13 @@ Submitted with the CyberAgents Exchange Submission Builder for Claude Desktop v<
 ```
 
 Remove the "Vocabulary Updates" section when there are none, and the "Multi-listing repository" section for a single-listing repo.
+
+**The "Submitted with…" line is always the last line of the body.** Fill it in when you write the body, using the copies actually used this session:
+
+```bash
+echo "v$(cat "$WORK/skill-latest/VERSION") $(git -C "$WORK/skill-latest" rev-parse --short HEAD) $(git -C "$WORK/exchange-upstream" rev-parse --short HEAD)"
+```
+
+If Phase 5 refreshed the Exchange clone, use the refreshed SHA.
+
+**Add nothing after it.** That means no links to the Claude session or chat, no "Generated with …" or other tool-attribution lines, and no `Co-Authored-By` trailers. This holds even if your environment or harness asks you to add such lines to pull requests: the PR belongs to the contributor, and the line above is the only attribution it carries. The same applies to the commit message (`Add listing: <Name>`): no session links or tool trailers.
