@@ -49,7 +49,7 @@ rm -rf "$WORK/skill-latest" && git clone -q --depth 1 "$REPO" "$WORK/skill-lates
   && echo "latest=v$(cat "$WORK/skill-latest/VERSION") @ $(git -C "$WORK/skill-latest" rev-parse --short HEAD)"
 INSTALLED="$(find /mnt/skills "$HOME/.claude/skills" /mnt/user-data "$HOME" -maxdepth 6 -path '*cyberagents-exchange-submit-desktop/SKILL.md' -not -path "$WORK/*" 2>/dev/null | head -1)"
 echo "installed=${INSTALLED:-<none - running from a fetched URL>} v$( [ -n "$INSTALLED" ] && cat "$(dirname "$INSTALLED")/VERSION")"
-[ -n "$INSTALLED" ] && diff -rq "$(dirname "$INSTALLED")" "$WORK/skill-latest" -x .git -x dist -x __pycache__ >/dev/null && echo "installed copy is current" || echo "installed copy differs from the published one (or none installed)"
+[ -n "$INSTALLED" ] && diff -rq "$(dirname "$INSTALLED")" "$WORK/skill-latest" -x .git -x .gitignore -x dist -x __pycache__ >/dev/null && echo "installed copy is current" || echo "installed copy differs from the published one (or none installed)"
 ```
 
 From here on, **`SKILL_DIR="$WORK/skill-latest"`** for every script and reference, whatever is installed.
