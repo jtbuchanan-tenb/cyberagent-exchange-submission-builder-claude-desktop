@@ -39,11 +39,11 @@ The person needs to do up to two one-time things.
 Then **attach each repository** the work touches before using it:
 - the person's project repo: read access for scanning, push access if you will commit fixes;
 - their fork `<login>/cyberagents-exchange`: push access;
-- upstream `tenable/cyberagents-exchange`: attach it with read access. Anonymous git clone usually works, but REST calls against it, such as opening a PR or forking, need it attached.
+- upstream `tenable/cyberagents-exchange`: git clone and fetch work anonymously. REST calls against it, such as opening a PR or creating a fork, need it attached with *push* access. Contributors don't have push access to the Exchange, so expect that attach to be refused. On this route the PR is opened with the pre-filled compare link instead: one click for the person, with the title and body already filled in.
 
 Attach even public repos before calling the API on them. The gateway refuses REST calls on repos the session hasn't attached.
 
-Opening a PR on upstream from the fork is an API call against `tenable/cyberagents-exchange`. If the gateway refuses it even after attaching, use the browser route for that one step (see `pr-workflow.md`); the branch is already pushed.
+Opening a PR on upstream from the fork is an API call against `tenable/cyberagents-exchange`. If the gateway refuses it, which is the normal case, push the branch as usual and give the person the pre-filled PR link (`pr-workflow.md` → "Open the PR"). Don't try other ways around the refusal.
 
 **What the gateway cannot do, even with the connector and the GitHub App:**
 - **Create a repository.** Account-wide endpoints are refused. When a new repo is needed (splitting a monorepo component, or a project that exists only locally), give the person a pre-filled link and wait for them to create it, private, with nothing initialised:

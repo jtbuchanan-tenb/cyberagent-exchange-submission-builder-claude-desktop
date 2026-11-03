@@ -60,7 +60,7 @@ gh api -X POST repos/tenable/cyberagents-exchange/pulls \
   --jq '.html_url + "  #" + (.number|tostring)'
 ```
 
-If the gateway refuses an API call on `tenable/cyberagents-exchange` because the repo isn't attached, attach it (read access) and retry once. If it is still refused, open the PR through the browser: the branch is already pushed, so the person only needs this link:
+On the session gateway this call is normally refused ("GitHub access to this repository is not enabled for this session"). Opening a PR is an API call on `tenable/cyberagents-exchange`, and the session can only make those on repos attached with push access, which contributors don't have. Don't work around it. The branch is already pushed, so the person only needs one click on this pre-filled link:
 
 ```bash
 python3 -I "$SKILL_DIR/scripts/prefill_link.py" pr --owner "$ME" --branch "add-$SLUG" --title "Add listing: <Name>" --body-file "$WORK/pr-$SLUG.md"
