@@ -1,0 +1,66 @@
+# Keeps a committed skill archive (for example dist/<skill-name>.zip) identical to the
+# unpacked skill files, so Exchange reviewers find no mismatch and users never install a
+# stale copy. Copy to .github/workflows/skill-archive-sync.yml and adjust the two env values.
+#  - Pull requests: fail if the archive is stale.
+#  - Pushes to the default branch: rebuild it and commit it back if stale.
+name: Skill archive sync
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  SKILL_PATH: "."                                  # folder holding SKILL.md
+  ARCHIVE: "dist/${SKILL_NAME}.zip"                # ${SKILL_NAME} is read from SKILL.md
+
+jobs:
+  archive:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the archive reproducibly
+        id: build
+        shell: python
+        run: |
+          import io, os, re, zipfile, pathlib
+          root = pathlib.Path(os.environ["SKILL_PATH"]).resolve()
+          name = re.search(r"^name:\s*(\S+)", (root / "SKILL.md").read_text(), re.M).group(1).strip("\"'")
+          archive = pathlib.Path(os.environ["ARCHIVE"].replace("${SKILL_NAME}", name)).resolve()
+          skip = re.compile(r"(^|/)(\.git|\.github|dist|node_modules|__pycache__|\.venv)(/|$)|\.pyc$|\.DS_Store$")
+          files = sorted(p for p in root.rglob("*") if p.is_file() and p != archive
+                         and not skip.search(p.relative_to(root).as_posix()))
+          buf = io.BytesIO()
+          with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as z:
+              for p in files:
+                  zi = zipfile.ZipInfo(f"{name}/{p.relative_to(root).as_posix()}", (1980, 1, 1, 0, 0, 0))
+                  zi.external_attr = (0o100755 if os.access(p, os.X_OK) else 0o100644) << 16
+                  zi.compress_type = zipfile.ZIP_DEFLATED
+                  z.writestr(zi, p.read_bytes())
+          def entries(b):
+              with zipfile.ZipFile(io.BytesIO(b)) as z:
+                  return {i.filename: z.read(i) for i in z.infolist() if not i.is_dir()}
+          new = buf.getvalue()
+          stale = not archive.is_file() or entries(archive.read_bytes()) != entries(new)
+          if stale and os.environ["GITHUB_EVENT_NAME"] != "pull_request":
+              archive.parent.mkdir(parents=True, exist_ok=True)
+              archive.write_bytes(new)
+          with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+              f.write(f"stale={'true' if stale else 'false'}\narchive={archive.relative_to(pathlib.Path.cwd())}\n")
+      - name: Fail on a stale archive (pull requests)
+        if: github.event_name == 'pull_request' && steps.build.outputs.stale == 'true'
+        run: |
+          echo "::error file=${{ steps.build.outputs.archive }}::The skill archive doesn't match the unpacked files. Rebuild it and commit it."
+          exit 1
+      - name: Commit the rebuilt archive (default branch)
+        if: github.event_name != 'pull_request' && steps.build.outputs.stale == 'true'
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "${{ steps.build.outputs.archive }}"
+          git commit -m "Rebuild skill archive [skip ci]"
+          git push

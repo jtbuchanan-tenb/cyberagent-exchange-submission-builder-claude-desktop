@@ -49,7 +49,7 @@ rm -rf "$WORK/skill-latest" && git clone -q --depth 1 "$REPO" "$WORK/skill-lates
   && echo "latest=v$(cat "$WORK/skill-latest/VERSION") @ $(git -C "$WORK/skill-latest" rev-parse --short HEAD)"
 INSTALLED="$(find /mnt/skills "$HOME/.claude/skills" /mnt/user-data "$HOME" -maxdepth 6 -path '*cyberagents-exchange-submit-desktop/SKILL.md' -not -path "$WORK/*" 2>/dev/null | head -1)"
 echo "installed=${INSTALLED:-<none - running from a fetched URL>} v$( [ -n "$INSTALLED" ] && cat "$(dirname "$INSTALLED")/VERSION")"
-[ -n "$INSTALLED" ] && diff -rq "$(dirname "$INSTALLED")" "$WORK/skill-latest" -x .git -x .gitignore -x dist -x __pycache__ >/dev/null && echo "installed copy is current" || echo "installed copy differs from the published one (or none installed)"
+[ -n "$INSTALLED" ] && diff -rq "$(dirname "$INSTALLED")" "$WORK/skill-latest" -x .git -x .gitignore -x .github -x .githooks -x dist -x __pycache__ >/dev/null && echo "installed copy is current" || echo "installed copy differs from the published one (or none installed)"
 ```
 
 From here on, **`SKILL_DIR="$WORK/skill-latest"`** for every script and reference, whatever is installed.
@@ -229,7 +229,7 @@ find "$WORK/repo" -maxdepth 4 -type f \( -name '*.zip' -o -name '*.tar.gz' -o -n
 ```
 
 - If the content exists **only** inside an archive, that is **blocking**. Reviewers must be able to read every file on GitHub. Help them commit the unpacked files.
-- Archives alongside the unpacked content are fine as convenience downloads. Note that reviewers will inspect them.
+- Archives alongside the unpacked content are fine as convenience downloads. Note that reviewers will extract them and compare them with the source. Note it for Phase 6: `references/repo-hygiene.md` §1 has a workflow that keeps a committed archive in sync automatically.
 
 ### 2.7 License and copyright
 
@@ -378,5 +378,14 @@ Tell the person, briefly:
   ```markdown
   [![Listed on CyberAgents Exchange](https://img.shields.io/badge/CyberAgents%20Exchange-Listed-E7FF00?style=flat-square&labelColor=1E2426)](https://exchange.tenable.com/)
   ```
+
+Then offer **repository hygiene recommendations** from `references/repo-hygiene.md`. Pick only the items that fit what you saw in their repo, such as:
+- a committed archive that could drift;
+- no secret scanning on push;
+- a `.gitignore` that misses `.env` or keys;
+- no version or changelog;
+- dependency manifests without Dependabot.
+
+Keep it to a short list, one line of *why* each, framed as optional and not as Exchange requirements. Offer to add the ones they pick, with the usual confirmation. Never hold up the submission for these.
 
 Don't recap every step. Leave `$WORK` in place in case they come back; it holds no secrets.

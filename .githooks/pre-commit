@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# Rebuild the skill zip whenever skill sources are part of a commit, and stage it.
+# Enable once per clone:  git config core.hooksPath .githooks
+if git diff --cached --name-only | grep -qE '^(SKILL\.md|VERSION|LICENSE|README\.md|references/|scripts/|assets/)'; then
+  python3 scripts/build_release.py >/dev/null && git add dist/
+fi

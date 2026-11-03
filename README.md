@@ -37,7 +37,7 @@ It is the sibling of the [Claude Code submission builder](https://github.com/jtb
 2. In Claude, open **Settings → Capabilities → Skills** and choose **Upload skill**. Some builds put this under Customize → Skills.
 3. Select the zip. The skill appears as **cyberagents-exchange-submit-desktop**; make sure it's toggled on.
 
-To build the zip yourself from a clone, run `scripts/build_release.sh`. It writes `dist/cyberagents-exchange-submit-desktop.zip`, whose top folder matches the skill name, as the upload requires.
+To build the zip yourself from a clone, run `python3 scripts/build_release.py`. It writes `dist/cyberagents-exchange-submit-desktop.zip`, whose top folder matches the skill name, as the upload requires.
 
 ### Without installing
 
@@ -70,6 +70,17 @@ Claude works through readiness, the Contribution Agreement, validation, the inve
 - If you agree, fixes committed to your own repo: licence, README sections, a `SKILL.md` entry point for subagents.
 - A resumable plan at `~/cae-submission/submission-plan.json` in the sandbox.
 
+## Repository hygiene, for you and for contributors
+
+After the PRs are open, the skill offers optional, tailored recommendations to keep a submitted repo healthy as it changes. They're never a blocker. The templates are in [`assets/contributor-workflows/`](assets/contributor-workflows/):
+- a GitHub Action that keeps a committed skill zip identical to the unpacked files;
+- gitleaks secret scanning on every push;
+- `.gitignore` lines for secret-bearing files;
+- versioning and a changelog;
+- README discipline, and Dependabot.
+
+See [`references/repo-hygiene.md`](references/repo-hygiene.md).
+
 ## Repositories with several listings
 
 The Exchange **prefers one repository per listing**, and the skill says so first. It offers to split components into their own repos with history preserved, or to submit one component at a time.
@@ -95,7 +106,7 @@ When you confirm an exceptional reason (for example, a platform monorepo whose c
 | `validate_listing.py` | Runs the Exchange's own `validator.py` against a listing, plus Tier 1 checklist lint: slug, directory, Tenable-set fields, placeholders, dates, domains, body, `github_url`, EMU |
 | `vocab.py` | Prints the live controlled vocabularies from `validator.py` |
 | `prefill_link.py` | Builds pre-filled github.com links (new repo, fork, new file, PR with title and body, licence) for steps you do in your browser |
-| `build_release.sh` | Builds the uploadable skill zip |
+| `build_release.py` / `build_release.sh` | Builds the uploadable skill zip reproducibly; `--check` verifies the committed zip matches the sources |
 
 ### Network access
 
@@ -114,6 +125,15 @@ It sends no telemetry and calls no other services.
 - **Detection is a draft.** Component and MCP tool detection is heuristic. Claude confirms against the code and asks you, but review the generated metadata.
 - **Validator deps.** The Exchange's `validator.py` needs `pydantic` and `PyYAML`, which Claude's sandbox normally includes. Its other optional deps are shimmed when they can't be installed.
 - **Files on your computer** are reachable only while the Claude desktop app is open and linked. Otherwise the skill works from GitHub or an uploaded zip.
+
+## Maintaining this repo
+
+The zip in `dist/` is kept in step with the sources automatically:
+- **CI** (`.github/workflows/skill-zip.yml`): on pull requests, it fails if `dist/` is stale and warns if skill files changed without a `VERSION` bump. On pushes to `main`, it rebuilds the zip and commits it back if needed.
+- **Locally (optional):** run `git config core.hooksPath .githooks` once per clone, and the pre-commit hook rebuilds and stages the zip whenever skill files are committed.
+- The build is reproducible: unchanged sources give an unchanged zip, so there are no noise commits.
+
+Bump `VERSION` when the skill changes. Every run already follows the latest published instructions, so the version mainly tells people with an installed copy that a re-upload is due.
 
 ## License
 
