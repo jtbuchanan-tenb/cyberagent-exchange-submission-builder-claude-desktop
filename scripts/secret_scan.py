@@ -51,7 +51,7 @@ RULES: list[tuple[str, re.Pattern]] = [
 PLACEHOLDER = re.compile(r"(?i)(x{6,}|your[_-]|example|placeholder|changeme|dummy|redacted|<[^>]+>|\$\{|\{\{|process\.env|os\.environ|getenv|0{16,}|1234567890|abcdef(?:ghij)?)")
 SECRET_FILENAME = re.compile(
     r"(?i)(^|/)(\.env(\.[^/]*)?|\.envrc|credentials\.json|service[-_]account[^/]*\.json|id_rsa|id_dsa|id_ecdsa|id_ed25519|"
-    r"[^/]*\.(pem|p12|pfx|jks|keystore|ppk|key)|[^/]*secrets?[^/]*\.(ya?ml|json|toml|ini)|\.npmrc|\.pypirc|\.netrc|\.git-credentials)$")
+    r"[^/]*\.(pem|p12|pfx|jks|keystore|ppk|key)|(?:[^/]*[-_.])?secrets?\.(ya?ml|json|toml|ini)|\.npmrc|\.pypirc|\.netrc|\.git-credentials)$")
 ALLOWED_FILENAME = re.compile(r"(?i)\.env\.(example|sample|template|dist)$|example|sample|test[s]?/fixtures")
 LOW_CONF_PATH = re.compile(r"(?i)(^|/)(tests?|spec|fixtures?|docs?|examples?)/|\.(md|rst|txt)$|_test\.|test_")
 LOW_CONF_VALUE = re.compile(r"(?i)^(test|fake|mock|sample|dummy|hardcoded|secret|password)")
